@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منيو المخبز - طلب جديد</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    
     <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // ⚠️ يجب استخدام نفس إعدادات Firebase الخاصة بالمشروع
-       const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyAzA0XPVzn7dZYYKbqjoWD4XoH2MEHxq_s",
             authDomain: "pos-system-b20e2.firebaseapp.com",
             databaseURL: "https://pos-system-b20e2-default-rtdb.firebaseio.com",
@@ -28,162 +29,484 @@
         window.db = db;
         window.dbRefs = { ref, onValue, push };
     </script>
+
     <style>
-        *,
-        *::before,
-        *::after {
+        :root {
+            --primary-amber: #d97706;
+            --primary-light: #fef3c7;
+            --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --bg-main: #f1f5f9;
+            --surface-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --accent-green: #10b981;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --shadow-card: 0 10px 20px -5px rgba(217, 119, 6, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+            --shadow-float: 0 20px 30px -10px rgba(15, 23, 42, 0.25);
+        }
+
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: #f8fafc;
-            color: #1e293b;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             padding: 16px;
-            padding-bottom: 220px;
+            padding-bottom: 120px;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
+        /* Hero Header */
         header {
+            position: relative;
+            background: var(--gradient-gold);
+            color: white;
+            padding: 28px 20px 24px;
+            border-radius: var(--radius-lg);
             text-align: center;
-            padding: 15px 0;
-            border-bottom: 2px dashed #cbd5e1;
+            box-shadow: 0 12px 24px -6px rgba(217, 119, 6, 0.3);
             margin-bottom: 20px;
+            overflow: hidden;
         }
 
-        .order-info {
-            background: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+        header::after {
+            content: "🥖";
+            position: absolute;
+            left: -10px;
+            bottom: -20px;
+            font-size: 90px;
+            opacity: 0.15;
+            transform: rotate(20deg);
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        header p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* Order Inputs */
+        .order-inputs {
+            background: var(--surface-card);
+            padding: 16px;
+            border-radius: var(--radius-md);
             margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .order-info input {
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 14px;
+        .input-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-field i {
+            position: absolute;
+            right: 14px;
+            color: var(--primary-amber);
+            font-size: 15px;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 12px 42px 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 13.5px;
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fafafa;
+        }
+
+        .input-field input:focus {
+            border-color: var(--primary-amber);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Products Grid */
+        .grid-header {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
 
         .card {
-            background: #fff;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            text-align: center;
+            background: var(--surface-card);
+            border-radius: var(--radius-md);
+            padding: 14px 10px;
             display: flex;
             flex-direction: column;
+            align-items: center;
             justify-content: space-between;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(241, 245, 249, 0.8);
+        }
+
+        .card:active {
+            transform: scale(0.97);
         }
 
         .card .emoji {
-            font-size: 36px;
+            font-size: 46px;
             margin-bottom: 6px;
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.06));
+        }
+
+        .card h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            text-align: center;
         }
 
         .card .price {
-            color: #2563eb;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 8px;
+            color: var(--primary-amber);
+            font-weight: 900;
+            font-size: 15px;
+            margin-bottom: 10px;
         }
 
-        .card button {
-            background: #10b981;
-            color: white;
+        .add-btn {
+            width: 100%;
+            background: var(--primary-light);
+            color: var(--primary-amber);
             border: none;
             padding: 8px;
-            border-radius: 6px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 13px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
-        .tray {
+        .add-btn:hover, .add-btn:active {
+            background: var(--primary-amber);
+            color: white;
+        }
+
+        /* Floating Bottom Tray Bar */
+        .floating-tray-bar {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            max-width: 468px;
+            margin: 0 auto;
             background: #0f172a;
             color: white;
-            padding: 16px;
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
-        }
-
-        .tray-items {
-            max-height: 100px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .tray-item {
+            padding: 12px 18px;
+            border-radius: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 6px 10px;
-            border-radius: 6px;
+            box-shadow: var(--shadow-float);
+            z-index: 99;
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
-        .send-btn {
+        .floating-tray-bar:active {
+            transform: scale(0.98);
+        }
+
+        .tray-bar-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-count {
+            background: var(--primary-amber);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .tray-bar-price {
+            font-weight: 800;
+            font-size: 16px;
+            color: #fbbf24;
+        }
+
+        /* Modal Drawer */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .drawer-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .drawer-content {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-top-left-radius: 28px;
+            border-top-right-radius: 28px;
+            padding: 20px;
+            z-index: 101;
+            transition: bottom 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer-overlay.active .drawer-content {
+            bottom: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .drawer-header h3 {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .drawer-items {
+            overflow-y: auto;
+            margin: 16px 0;
+            max-height: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .drawer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 12px;
+        }
+
+        .qty-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .qty-picker button {
+            border: none;
+            background: none;
+            color: var(--primary-amber);
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            width: 20px;
+        }
+
+        .send-order-btn {
             width: 100%;
-            padding: 12px;
-            background: #3b82f6;
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             border: none;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 800;
             font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #0f172a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 200;
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Order Log */
+        .sent-orders-section {
+            margin-top: 28px;
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .sent-card {
+            background: #f8fafc;
+            border-right: 4px solid var(--accent-green);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 12.5px;
         }
     </style>
 </head>
 
 <body>
 
+    <div class="toast" id="toast">تمت الإضافة للسلة ✨</div>
+
     <header>
-        <h1>🥖 منيو المخبز الإلكتروني</h1>
-        <p>اختر وجبتك وأرسل الطلب مباشرة إلى الكاشير</p>
+        <h1>🥐 مخبز البركة الفاخر</h1>
+        <p>اختر ما تشتهي وتابع طلبك خطوة بخطوة</p>
     </header>
 
-    <div class="order-info">
-        <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون (مثال: طاولة 3)">
-        <input type="text" id="custNote" placeholder="ملاحظات إضافية (مثال: بدون بصل)">
+    <div class="order-inputs">
+        <div class="input-field">
+            <i class="fa-solid fa-chair"></i>
+            <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون">
+        </div>
+        <div class="input-field">
+            <i class="fa-solid fa-note-sticky"></i>
+            <input type="text" id="custNote" placeholder="أي ملاحظات خاصة بالطلب؟">
+        </div>
     </div>
 
+    <div class="grid-header">
+        <i class="fa-solid fa-bread-slice" style="color: var(--primary-amber)"></i> القائمة المتاحة
+    </div>
+    
     <div class="grid" id="menuGrid"></div>
 
-    <div class="tray">
-        <div class="tray-items" id="trayList"></div>
-        <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
-            <span>الإجمالي:</span>
-            <span id="trayTotal">$0.00</span>
+    <!-- Active Orders Log -->
+    <div class="sent-orders-section" id="myOrdersContainer" style="display: none;">
+        <div class="grid-header" style="margin-bottom: 8px;">
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-green)"></i> طلباتك السابقة
         </div>
-        <button class="send-btn" onclick="sendOrder()">🚀 إرسال الطلب للكاشير</button>
+        <div id="sentOrdersList"></div>
+    </div>
+
+    <!-- Floating Bottom Bar -->
+    <div class="floating-tray-bar" id="trayBar" onclick="toggleDrawer(true)" style="display: none;">
+        <div class="tray-bar-info">
+            <div class="badge-count" id="barBadge">0</div>
+            <span style="font-size: 14px; font-weight:700;">عرض السلة</span>
+        </div>
+        <div class="tray-bar-price" id="barTotal">$0.00</div>
+    </div>
+
+    <!-- Drawer Overlay -->
+    <div class="drawer-overlay" id="drawerOverlay">
+        <div class="drawer-content">
+            <div class="drawer-header">
+                <h3><i class="fa-solid fa-basket-shopping" style="color:var(--primary-amber);"></i> تفاصيل الطلب</h3>
+                <button class="close-btn" onclick="toggleDrawer(false)"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="drawer-items" id="drawerList"></div>
+
+            <div style="display:flex; justify-content:space-between; font-weight:800; font-size:16px; margin-bottom:14px;">
+                <span>المجموع الكلي:</span>
+                <span id="drawerTotal" style="color: var(--primary-amber);">$0.00</span>
+            </div>
+
+            <button class="send-order-btn" onclick="sendOrder()">
+                <i class="fa-solid fa-paper-plane"></i> تأكيد وإرسال الطلب
+            </button>
+        </div>
     </div>
 
     <script>
         let products = [];
         let tray = [];
+        let sentOrders = [];
 
         function initMenuFirebase() {
             if (!window.db) { setTimeout(initMenuFirebase, 100); return; }
             const { ref, onValue } = window.dbRefs;
 
-            // جلب قائمة المنتجات المحدثة من Firebase مباشرة
             onValue(ref(window.db, 'products'), (snapshot) => {
                 const data = snapshot.val();
                 products = data ? Object.values(data) : [];
@@ -194,6 +517,12 @@
         function renderMenu() {
             const grid = document.getElementById("menuGrid");
             grid.innerHTML = "";
+
+            if (products.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:30px; color:#94a3b8;">جاري جلب القائمة...</div>`;
+                return;
+            }
+
             products.forEach(p => {
                 let safeName = encodeURIComponent(p.name);
                 grid.innerHTML += `
@@ -201,9 +530,17 @@
                         <div class="emoji">${p.emoji || '🥖'}</div>
                         <h3>${p.name}</h3>
                         <div class="price">$${Number(p.price || 0).toFixed(2)}</div>
-                        <button onclick="addToTray('${safeName}')">+ إضافة</button>
+                        <button class="add-btn" onclick="addToTray('${safeName}')">
+                            <i class="fa-solid fa-plus"></i> إضافة
+                        </button>
                     </div>`;
             });
+        }
+
+        function showToast() {
+            const t = document.getElementById("toast");
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 1500);
         }
 
         function addToTray(encodedName) {
@@ -217,51 +554,107 @@
             } else {
                 tray.push({ name: prod.name, price: prod.price || 0, cost: prod.cost || 0, qty: 1 });
             }
+            showToast();
             renderTray();
         }
 
-        function renderTray() {
-            const list = document.getElementById("trayList");
-            list.innerHTML = "";
-            let total = 0;
+        function updateQty(index, delta) {
+            tray[index].qty += delta;
+            if (tray[index].qty <= 0) tray.splice(index, 1);
+            renderTray();
+            if (tray.length === 0) toggleDrawer(false);
+        }
 
-            tray.forEach((item) => {
+        function renderTray() {
+            const bar = document.getElementById("trayBar");
+            const drawerList = document.getElementById("drawerList");
+            let total = 0;
+            let count = 0;
+
+            if (tray.length === 0) {
+                bar.style.display = "none";
+                return;
+            }
+
+            bar.style.display = "flex";
+            drawerList.innerHTML = "";
+
+            tray.forEach((item, index) => {
                 total += item.price * item.qty;
-                list.innerHTML += `
-                    <div class="tray-item">
-                        <span>${item.name} (x${item.qty})</span>
-                        <span>$${(item.price * item.qty).toFixed(2)}</span>
+                count += item.qty;
+                drawerList.innerHTML += `
+                    <div class="drawer-item">
+                        <div>
+                            <div style="font-weight:700; font-size:13.5px;">${item.name}</div>
+                            <div style="font-size:12px; color:#64748b;">$${(item.price * item.qty).toFixed(2)}</div>
+                        </div>
+                        <div class="qty-picker">
+                            <button onclick="updateQty(${index}, -1)">-</button>
+                            <span style="font-size:13px; font-weight:bold;">${item.qty}</span>
+                            <button onclick="updateQty(${index}, 1)">+</button>
+                        </div>
                     </div>`;
             });
-            document.getElementById("trayTotal").innerText = "$" + total.toFixed(2);
+
+            document.getElementById("barBadge").innerText = count;
+            document.getElementById("barTotal").innerText = "$" + total.toFixed(2);
+            document.getElementById("drawerTotal").innerText = "$" + total.toFixed(2);
+        }
+
+        function toggleDrawer(open) {
+            const overlay = document.getElementById("drawerOverlay");
+            if (open && tray.length > 0) overlay.classList.add("active");
+            else overlay.classList.remove("active");
         }
 
         function sendOrder() {
             let table = document.getElementById("custTable").value.trim() || "سفري / غير محدد";
             let note = document.getElementById("custNote").value.trim();
 
-            if (tray.length === 0) return alert("الرجاء اختيار منتج واحد على الأقل!");
+            if (tray.length === 0) return;
 
             const { ref, push } = window.dbRefs;
+            let timeStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            let orderId = "REQ-" + Date.now().toString().slice(-4);
 
             let newRequest = {
-                id: "REQ-" + Date.now().toString().slice(-4),
-                time: new Date().toLocaleTimeString(),
+                id: orderId,
+                time: timeStr,
                 table: table,
                 note: note,
                 items: [...tray],
                 total: tray.reduce((sum, i) => sum + (i.price * i.qty), 0)
             };
 
-            // رفع الطلب إلى Firebase Realtime Database
             push(ref(window.db, 'requests'), newRequest)
                 .then(() => {
+                    sentOrders.unshift(newRequest);
+                    renderSentOrders();
                     tray = [];
                     document.getElementById("custNote").value = "";
                     renderTray();
-                    alert("✅ تم إرسال طلبك بنجاح إلى الكاشير!");
+                    toggleDrawer(false);
                 })
                 .catch((err) => alert("خطأ في الإرسال: " + err.message));
+        }
+
+        function renderSentOrders() {
+            const container = document.getElementById("myOrdersContainer");
+            const list = document.getElementById("sentOrdersList");
+            container.style.display = "block";
+            list.innerHTML = "";
+
+            sentOrders.forEach(ord => {
+                let itemsSummary = ord.items.map(i => `${i.name} (x${i.qty})`).join(' ، ');
+                list.innerHTML += `
+                    <div class="sent-card">
+                        <div style="display:flex; justify-style:space-between; font-weight:700;">
+                            <span>طلب #${ord.id} - ${ord.table}</span>
+                            <span style="color:var(--primary-amber); margin-right:auto;">$${ord.total.toFixed(2)}</span>
+                        </div>
+                        <div style="color:#64748b; margin-top:2px;">${itemsSummary}</div>
+                    </div>`;
+            });
         }
 
         window.onload = initMenuFirebase;
