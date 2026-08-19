@@ -431,6 +431,16 @@
             margin-top: 8px;
             font-size: 12.5px;
         }
+
+        .clear-history-btn {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-right: auto;
+        }
     </style>
 </head>
 
@@ -446,11 +456,11 @@
     <div class="order-inputs">
         <div class="input-field">
             <i class="fa-solid fa-chair"></i>
-            <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون">
+            <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون" oninput="saveInputsState()">
         </div>
         <div class="input-field">
             <i class="fa-solid fa-note-sticky"></i>
-            <input type="text" id="custNote" placeholder="أي ملاحظات خاصة بالطلب؟">
+            <input type="text" id="custNote" placeholder="أي ملاحظات خاصة بالطلب؟" oninput="saveInputsState()">
         </div>
     </div>
 
@@ -462,8 +472,9 @@
 
     <!-- Active Orders Log -->
     <div class="sent-orders-section" id="myOrdersContainer" style="display: none;">
-        <div class="grid-header" style="margin-bottom: 8px;">
-            <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-green)"></i> طلباتك السابقة
+        <div class="grid-header" style="margin-bottom: 8px; justify-content: space-between;">
+            <span><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-green)"></i> طلباتك السابقة</span>
+            <button class="clear-history-btn" onclick="clearSentOrdersHistory()"><i class="fa-solid fa-trash"></i> مسح السجل</button>
         </div>
         <div id="sentOrdersList"></div>
     </div>
@@ -502,6 +513,35 @@
         let products = [];
         let tray = [];
         let sentOrders = [];
+
+        // 1. تحميل البيانات من Local Storage
+        function loadFromLocalStorage() {
+            // استرجاع الطلبات السابقة/الفواتير
+            const storedOrders = localStorage.getItem("my_sent_orders");
+            if (storedOrders) {
+                sentOrders = JSON.parse(storedOrders);
+                renderSentOrders();
+            }
+
+            // استرجاع السلة المجهزة
+            const storedTray = localStorage.getItem("my_tray");
+            if (storedTray) {
+                tray = JSON.parse(storedTray);
+                renderTray();
+            }
+
+            // استرجاع المدخلات (اسم الطاولة والملاحظات)
+            const storedTable = localStorage.getItem("cust_table");
+            const storedNote = localStorage.getItem("cust_note");
+            if (storedTable) document.getElementById("custTable").value = storedTable;
+            if (storedNote) document.getElementById("custNote").value = storedNote;
+        }
+
+        // حفظ بيانات الإدخال
+        function saveInputsState() {
+            localStorage.setItem("cust_table", document.getElementById("custTable").value);
+            localStorage.setItem("cust_note", document.getElementById("custNote").value);
+        }
 
         function initMenuFirebase() {
             if (!window.db) { setTimeout(initMenuFirebase, 100); return; }
@@ -554,6 +594,10 @@
             } else {
                 tray.push({ name: prod.name, price: prod.price || 0, cost: prod.cost || 0, qty: 1 });
             }
+
+            // حفظ السلة
+            localStorage.setItem("my_tray", JSON.stringify(tray));
+
             showToast();
             renderTray();
         }
@@ -561,6 +605,10 @@
         function updateQty(index, delta) {
             tray[index].qty += delta;
             if (tray[index].qty <= 0) tray.splice(index, 1);
+            
+            // حفظ السلة بعد التعديل
+            localStorage.setItem("my_tray", JSON.stringify(tray));
+
             renderTray();
             if (tray.length === 0) toggleDrawer(false);
         }
@@ -629,9 +677,18 @@
             push(ref(window.db, 'requests'), newRequest)
                 .then(() => {
                     sentOrders.unshift(newRequest);
+                    
+                    // 2. حفظ الفواتير المرسلة في localStorage
+                    localStorage.setItem("my_sent_orders", JSON.stringify(sentOrders));
+                    
                     renderSentOrders();
+
+                    // تفريغ السلة والملاحظات وحذفهم من الـ Local Storage
                     tray = [];
+                    localStorage.removeItem("my_tray");
                     document.getElementById("custNote").value = "";
+                    localStorage.removeItem("cust_note");
+
                     renderTray();
                     toggleDrawer(false);
                 })
@@ -641,6 +698,12 @@
         function renderSentOrders() {
             const container = document.getElementById("myOrdersContainer");
             const list = document.getElementById("sentOrdersList");
+
+            if (sentOrders.length === 0) {
+                container.style.display = "none";
+                return;
+            }
+
             container.style.display = "block";
             list.innerHTML = "";
 
@@ -648,7 +711,7 @@
                 let itemsSummary = ord.items.map(i => `${i.name} (x${i.qty})`).join(' ، ');
                 list.innerHTML += `
                     <div class="sent-card">
-                        <div style="display:flex; justify-style:space-between; font-weight:700;">
+                        <div style="display:flex; justify-content:space-between; font-weight:700;">
                             <span>طلب #${ord.id} - ${ord.table}</span>
                             <span style="color:var(--primary-amber); margin-right:auto;">$${ord.total.toFixed(2)}</span>
                         </div>
@@ -657,7 +720,19 @@
             });
         }
 
-        window.onload = initMenuFirebase;
+        // إمكانية مسح سجل الطلبات عند الرغبة
+        function clearSentOrdersHistory() {
+            if (confirm("هل تريد مسح سجل طلباتك من هذا الجهاز؟")) {
+                sentOrders = [];
+                localStorage.removeItem("my_sent_orders");
+                renderSentOrders();
+            }
+        }
+
+        window.onload = () => {
+            initMenuFirebase();
+            loadFromLocalStorage(); // استرجاع الفواتير والسلة المخزنة فور فتح الصفحة
+        };
     </script>
 </body>
 
