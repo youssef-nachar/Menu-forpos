@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منيو المخبز - طلب جديد</title>
+    <!-- Font Awesome 6.7.1 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Tajawal -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-    
+
     <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -23,6 +25,7 @@
             appId: "1:709615712934:web:2a06fe3e6aa1630fe69267",
             measurementId: "G-9CFD4RBYH2"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -33,17 +36,20 @@
     <style>
         :root {
             --primary-amber: #d97706;
-            --primary-light: #fef3c7;
+            --primary-hover: #b45309;
+            --primary-light: #fffbeb;
             --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            --bg-main: #f1f5f9;
+            --bg-main: #f8fafc;
             --surface-card: #ffffff;
             --text-main: #0f172a;
             --text-sub: #64748b;
             --accent-green: #10b981;
-            --radius-md: 16px;
-            --radius-lg: 24px;
-            --shadow-card: 0 10px 20px -5px rgba(217, 119, 6, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-            --shadow-float: 0 20px 30px -10px rgba(15, 23, 42, 0.25);
+            --accent-green-hover: #059669;
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 28px;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 4px 10px -2px rgba(0, 0, 0, 0.02);
+            --shadow-float: 0 20px 35px -10px rgba(15, 23, 42, 0.25);
         }
 
         *, *::before, *::after {
@@ -59,35 +65,53 @@
             color: var(--text-main);
             padding: 16px;
             padding-bottom: 120px;
-            max-width: 500px;
-            margin: 0 auto;
+            min-height: 100vh;
         }
 
-        /* Hero Header */
+        /* Layout Container for Desktop/Mobile */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .main-content {
+            width: 100%;
+        }
+
+        /* Desktop Sidebar Panel */
+        .desktop-sidebar {
+            display: none;
+        }
+
+        /* Header UI */
         header {
             position: relative;
             background: var(--gradient-gold);
             color: white;
-            padding: 28px 20px 24px;
+            padding: 32px 20px 26px;
             border-radius: var(--radius-lg);
             text-align: center;
-            box-shadow: 0 12px 24px -6px rgba(217, 119, 6, 0.3);
+            box-shadow: 0 14px 28px -8px rgba(217, 119, 6, 0.35);
             margin-bottom: 20px;
             overflow: hidden;
         }
 
         header::after {
-            content: "🥖";
+            content: "🥐";
             position: absolute;
-            left: -10px;
-            bottom: -20px;
-            font-size: 90px;
+            left: -15px;
+            bottom: -25px;
+            font-size: 100px;
             opacity: 0.15;
-            transform: rotate(20deg);
+            transform: rotate(15deg);
+            pointer-events: none;
         }
 
         header h1 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 900;
             letter-spacing: -0.5px;
             display: flex;
@@ -97,22 +121,23 @@
         }
 
         header p {
-            font-size: 13px;
-            opacity: 0.9;
+            font-size: 13.5px;
+            opacity: 0.95;
             margin-top: 6px;
             font-weight: 500;
         }
 
-        /* Order Inputs */
+        /* Order Inputs Area */
         .order-inputs {
             background: var(--surface-card);
-            padding: 16px;
+            padding: 18px;
             border-radius: var(--radius-md);
             margin-bottom: 20px;
             box-shadow: var(--shadow-card);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.6);
         }
 
         .input-field {
@@ -125,55 +150,92 @@
             position: absolute;
             right: 14px;
             color: var(--primary-amber);
-            font-size: 15px;
+            font-size: 16px;
         }
 
         .input-field input {
             width: 100%;
             padding: 12px 42px 12px 14px;
             border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             font-size: 13.5px;
             outline: none;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            background: #fafafa;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            color: var(--text-main);
         }
 
         .input-field input:focus {
             border-color: var(--primary-amber);
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+        }
+
+        /* Search Bar */
+        .search-box {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 38px 12px 14px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
+            font-size: 13.5px;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
+            font-size: 14px;
         }
 
         /* Products Grid */
         .grid-header {
             font-size: 16px;
             font-weight: 800;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-main);
+        }
+
+        .grid-header-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-main);
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 14px;
         }
 
         .card {
             background: var(--surface-card);
             border-radius: var(--radius-md);
-            padding: 14px 10px;
+            padding: 16px 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             box-shadow: var(--shadow-card);
             position: relative;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(241, 245, 249, 0.8);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -5px rgba(0, 0, 0, 0.08);
         }
 
         .card:active {
@@ -181,14 +243,14 @@
         }
 
         .card .emoji {
-            font-size: 46px;
-            margin-bottom: 6px;
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.06));
+            font-size: 48px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.08));
         }
 
         .card h3 {
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 14.5px;
+            font-weight: 800;
             color: var(--text-main);
             margin-bottom: 4px;
             text-align: center;
@@ -198,15 +260,15 @@
             color: var(--primary-amber);
             font-weight: 900;
             font-size: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .add-btn {
             width: 100%;
             background: var(--primary-light);
             color: var(--primary-amber);
-            border: none;
-            padding: 8px;
+            border: 1px solid rgba(217, 119, 6, 0.2);
+            padding: 9px;
             border-radius: 10px;
             font-weight: 800;
             font-size: 13px;
@@ -221,27 +283,28 @@
         .add-btn:hover, .add-btn:active {
             background: var(--primary-amber);
             color: white;
+            border-color: var(--primary-amber);
         }
 
-        /* Floating Bottom Tray Bar */
+        /* Floating Bottom Tray Bar (Mobile) */
         .floating-tray-bar {
             position: fixed;
-            bottom: 16px;
+            bottom: 20px;
             left: 16px;
             right: 16px;
             max-width: 468px;
             margin: 0 auto;
             background: #0f172a;
             color: white;
-            padding: 12px 18px;
-            border-radius: 20px;
+            padding: 14px 20px;
+            border-radius: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow-float);
             z-index: 99;
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
         .floating-tray-bar:active {
@@ -257,23 +320,23 @@
         .badge-count {
             background: var(--primary-amber);
             color: white;
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 13px;
+            font-size: 13.5px;
         }
 
         .tray-bar-price {
             font-weight: 800;
-            font-size: 16px;
+            font-size: 17px;
             color: #fbbf24;
         }
 
-        /* Modal Drawer */
+        /* Drawer Overlay */
         .drawer-overlay {
             position: fixed;
             top: 0;
@@ -303,10 +366,10 @@
             background: white;
             border-top-left-radius: 28px;
             border-top-right-radius: 28px;
-            padding: 20px;
+            padding: 22px;
             z-index: 101;
-            transition: bottom 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-            max-height: 80vh;
+            transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 85vh;
             display: flex;
             flex-direction: column;
         }
@@ -324,27 +387,31 @@
         }
 
         .drawer-header h3 {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 800;
         }
 
         .close-btn {
             background: #f1f5f9;
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             cursor: pointer;
             color: #64748b;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .drawer-items {
             overflow-y: auto;
             margin: 16px 0;
-            max-height: 250px;
+            max-height: 300px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .drawer-item {
@@ -352,17 +419,18 @@
             justify-content: space-between;
             align-items: center;
             background: #f8fafc;
-            padding: 10px 14px;
-            border-radius: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #f1f5f9;
         }
 
         .qty-picker {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             background: white;
-            padding: 4px 8px;
-            border-radius: 8px;
+            padding: 4px 10px;
+            border-radius: 10px;
             border: 1px solid #e2e8f0;
         }
 
@@ -371,26 +439,33 @@
             background: none;
             color: var(--primary-amber);
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
             width: 20px;
         }
 
         .send-order-btn {
             width: 100%;
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-green-hover));
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 14px;
+            padding: 15px;
+            border-radius: 16px;
             font-weight: 800;
             font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.28);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .send-order-btn:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
         /* Toast notification */
@@ -401,35 +476,39 @@
             transform: translateX(-50%) translateY(-100px);
             background: #0f172a;
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 13px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 13.5px;
             font-weight: 700;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             z-index: 200;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .toast.show {
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Order Log */
+        /* Order Log Section */
         .sent-orders-section {
             margin-top: 28px;
             background: white;
             border-radius: var(--radius-md);
-            padding: 16px;
+            padding: 18px;
             box-shadow: var(--shadow-card);
+            border: 1px solid rgba(226, 232, 240, 0.6);
         }
 
         .sent-card {
             background: #f8fafc;
             border-right: 4px solid var(--accent-green);
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-top: 8px;
-            font-size: 12.5px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 13px;
         }
 
         .clear-history-btn {
@@ -439,47 +518,180 @@
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            margin-right: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Skeleton Loading */
+        .skeleton-card {
+            height: 170px;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: var(--radius-md);
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ========================================================
+           RESPONSIVE MEDIA QUERIES (شاشات الكمبيوتر والتابلت)
+        ======================================================== */
+        @media (min-width: 640px) {
+            .order-inputs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                padding-bottom: 40px;
+            }
+            .app-container {
+                grid-template-columns: 1fr 380px;
+            }
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .floating-tray-bar {
+                display: none !important;
+            }
+            /* إخفاء النافذة المنبثقة وتحويلها لشريط جانبي على الكمبيوتر */
+            .drawer-overlay {
+                display: block !important;
+                position: static;
+                background: transparent;
+                backdrop-filter: none;
+                opacity: 1;
+                z-index: 1;
+            }
+            .drawer-content {
+                position: sticky;
+                top: 24px;
+                bottom: auto;
+                max-width: 100%;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-card);
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                max-height: calc(100vh - 48px);
+            }
+            .close-btn {
+                display: none;
+            }
+            .desktop-orders-log {
+                display: block;
+            }
+            .mobile-orders-log {
+                display: none;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="toast" id="toast">تمت الإضافة للسلة ✨</div>
-
-    <header>
-        <h1>🥐 مخبز البركة الفاخر</h1>
-        <p>اختر ما تشتهي وتابع طلبك خطوة بخطوة</p>
-    </header>
-
-    <div class="order-inputs">
-        <div class="input-field">
-            <i class="fa-solid fa-chair"></i>
-            <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون" oninput="saveInputsState()">
-        </div>
-        <div class="input-field">
-            <i class="fa-solid fa-note-sticky"></i>
-            <input type="text" id="custNote" placeholder="أي ملاحظات خاصة بالطلب؟" oninput="saveInputsState()">
-        </div>
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i>
+        <span>تمت الإضافة للسلة ✨</span>
     </div>
 
-    <div class="grid-header">
-        <i class="fa-solid fa-bread-slice" style="color: var(--primary-amber)"></i> القائمة المتاحة
-    </div>
-    
-    <div class="grid" id="menuGrid"></div>
+    <div class="app-container">
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header>
+                <h1>🥐 مخبز البركة الفاخر</h1>
+                <p>اختر ما تشتهي وتابع طلبك خطوة بخطوة</p>
+            </header>
 
-    <!-- Active Orders Log -->
-    <div class="sent-orders-section" id="myOrdersContainer" style="display: none;">
-        <div class="grid-header" style="margin-bottom: 8px; justify-content: space-between;">
-            <span><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-green)"></i> طلباتك السابقة</span>
-            <button class="clear-history-btn" onclick="clearSentOrdersHistory()"><i class="fa-solid fa-trash"></i> مسح السجل</button>
-        </div>
-        <div id="sentOrdersList"></div>
+            <div class="order-inputs">
+                <div class="input-field">
+                    <i class="fa-solid fa-chair"></i>
+                    <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون" oninput="saveInputsState()">
+                </div>
+                <div class="input-field">
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <input type="text" id="custNote" placeholder="أي ملاحظات خاصة بالطلب؟" oninput="saveInputsState()">
+                </div>
+            </div>
+
+            <div class="grid-header">
+                <div class="grid-header-title">
+                    <i class="fa-solid fa-bread-slice" style="color: var(--primary-amber)"></i> القائمة المتاحة
+                </div>
+            </div>
+
+            <!-- شريط البحث -->
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="بحث عن صنف..." oninput="filterMenu()">
+            </div>
+            
+            <div class="grid" id="menuGrid">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+
+            <!-- Active Orders Log (Mobile Only) -->
+            <div class="sent-orders-section mobile-orders-log" id="myOrdersContainerMobile" style="display: none;">
+                <div class="grid-header" style="margin-bottom: 4px;">
+                    <div class="grid-header-title">
+                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-green)"></i> طلباتك السابقة
+                    </div>
+                    <button class="clear-history-btn" onclick="clearSentOrdersHistory()"><i class="fa-solid fa-trash"></i> مسح السجل</button>
+                </div>
+                <div id="sentOrdersListMobile"></div>
+            </div>
+        </main>
+
+        <!-- Sidebar Area (Desktop Basket / Mobile Drawer) -->
+        <aside class="sidebar-area">
+            <div class="drawer-overlay" id="drawerOverlay" onclick="handleOverlayClick(event)">
+                <div class="drawer-content" onclick="event.stopPropagation()">
+                    <div class="drawer-header">
+                        <h3><i class="fa-solid fa-basket-shopping" style="color:var(--primary-amber);"></i> سلة الطلبات</h3>
+                        <button class="close-btn" onclick="toggleDrawer(false)"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <div class="drawer-items" id="drawerList"></div>
+
+                    <div style="display:flex; justify-content:space-between; font-weight:800; font-size:16px; margin-bottom:16px;">
+                        <span>المجموع الكلي:</span>
+                        <span id="drawerTotal" style="color: var(--primary-amber);">$0.00</span>
+                    </div>
+
+                    <button class="send-order-btn" id="sendOrderBtn" onclick="sendOrder()">
+                        <i class="fa-solid fa-paper-plane"></i> تأكيد وإرسال الطلب
+                    </button>
+
+                    <!-- Active Orders Log (Desktop Side Panel) -->
+                    <div class="sent-orders-section desktop-orders-log" id="myOrdersContainerDesktop" style="display: none; margin-top: 20px;">
+                        <div class="grid-header" style="margin-bottom: 4px;">
+                            <div class="grid-header-title">
+                                <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-green)"></i> طلباتك السابقة
+                            </div>
+                            <button class="clear-history-btn" onclick="clearSentOrdersHistory()"><i class="fa-solid fa-trash"></i> مسح</button>
+                        </div>
+                        <div id="sentOrdersListDesktop"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </div>
 
-    <!-- Floating Bottom Bar -->
+    <!-- Floating Bottom Bar (Mobile Only) -->
     <div class="floating-tray-bar" id="trayBar" onclick="toggleDrawer(true)" style="display: none;">
         <div class="tray-bar-info">
             <div class="badge-count" id="barBadge">0</div>
@@ -488,61 +700,41 @@
         <div class="tray-bar-price" id="barTotal">$0.00</div>
     </div>
 
-    <!-- Drawer Overlay -->
-    <div class="drawer-overlay" id="drawerOverlay">
-        <div class="drawer-content">
-            <div class="drawer-header">
-                <h3><i class="fa-solid fa-basket-shopping" style="color:var(--primary-amber);"></i> تفاصيل الطلب</h3>
-                <button class="close-btn" onclick="toggleDrawer(false)"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <div class="drawer-items" id="drawerList"></div>
-
-            <div style="display:flex; justify-content:space-between; font-weight:800; font-size:16px; margin-bottom:14px;">
-                <span>المجموع الكلي:</span>
-                <span id="drawerTotal" style="color: var(--primary-amber);">$0.00</span>
-            </div>
-
-            <button class="send-order-btn" onclick="sendOrder()">
-                <i class="fa-solid fa-paper-plane"></i> تأكيد وإرسال الطلب
-            </button>
-        </div>
-    </div>
-
     <script>
         let products = [];
         let tray = [];
         let sentOrders = [];
 
-        // 1. تحميل البيانات من Local Storage
+        // 1. تحميل البيانات المخزنة محلياً
         function loadFromLocalStorage() {
-            // استرجاع الطلبات السابقة/الفواتير
-            const storedOrders = localStorage.getItem("my_sent_orders");
-            if (storedOrders) {
-                sentOrders = JSON.parse(storedOrders);
-                renderSentOrders();
-            }
+            try {
+                const storedOrders = localStorage.getItem("my_sent_orders");
+                if (storedOrders) {
+                    sentOrders = JSON.parse(storedOrders);
+                    renderSentOrders();
+                }
 
-            // استرجاع السلة المجهزة
-            const storedTray = localStorage.getItem("my_tray");
-            if (storedTray) {
-                tray = JSON.parse(storedTray);
-                renderTray();
-            }
+                const storedTray = localStorage.getItem("my_tray");
+                if (storedTray) {
+                    tray = JSON.parse(storedTray);
+                    renderTray();
+                }
 
-            // استرجاع المدخلات (اسم الطاولة والملاحظات)
-            const storedTable = localStorage.getItem("cust_table");
-            const storedNote = localStorage.getItem("cust_note");
-            if (storedTable) document.getElementById("custTable").value = storedTable;
-            if (storedNote) document.getElementById("custNote").value = storedNote;
+                const storedTable = localStorage.getItem("cust_table");
+                const storedNote = localStorage.getItem("cust_note");
+                if (storedTable) document.getElementById("custTable").value = storedTable;
+                if (storedNote) document.getElementById("custNote").value = storedNote;
+            } catch (e) {
+                console.error("Local Storage Error:", e);
+            }
         }
 
-        // حفظ بيانات الإدخال
         function saveInputsState() {
             localStorage.setItem("cust_table", document.getElementById("custTable").value);
             localStorage.setItem("cust_note", document.getElementById("custNote").value);
         }
 
+        // 2. الاتصال بقاعدة البيانات Firebase
         function initMenuFirebase() {
             if (!window.db) { setTimeout(initMenuFirebase, 100); return; }
             const { ref, onValue } = window.dbRefs;
@@ -550,54 +742,59 @@
             onValue(ref(window.db, 'products'), (snapshot) => {
                 const data = snapshot.val();
                 products = data ? Object.values(data) : [];
-                renderMenu();
+                renderMenu(products);
             });
         }
 
-        function renderMenu() {
+        // 3. عرض المنتجات في الشبكة
+        function renderMenu(items) {
             const grid = document.getElementById("menuGrid");
             grid.innerHTML = "";
 
-            if (products.length === 0) {
-                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:30px; color:#94a3b8;">جاري جلب القائمة...</div>`;
+            if (!items || items.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#94a3b8;">لا توجد أصناف متاحة حالياً</div>`;
                 return;
             }
 
-            products.forEach(p => {
-                let safeName = encodeURIComponent(p.name);
-                grid.innerHTML += `
-                    <div class="card">
-                        <div class="emoji">${p.emoji || '🥖'}</div>
-                        <h3>${p.name}</h3>
-                        <div class="price">$${Number(p.price || 0).toFixed(2)}</div>
-                        <button class="add-btn" onclick="addToTray('${safeName}')">
-                            <i class="fa-solid fa-plus"></i> إضافة
-                        </button>
-                    </div>`;
+            items.forEach((p) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="emoji">${p.emoji || '🥖'}</div>
+                    <h3>${p.name}</h3>
+                    <div class="price">$${Number(p.price || 0).toFixed(2)}</div>
+                    <button class="add-btn">
+                        <i class="fa-solid fa-plus"></i> إضافة
+                    </button>
+                `;
+                card.querySelector('.add-btn').addEventListener('click', () => addToTray(p));
+                grid.appendChild(card);
             });
+        }
+
+        // تصفية المنتجات بالبحث
+        function filterMenu() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            renderMenu(filtered);
         }
 
         function showToast() {
             const t = document.getElementById("toast");
             t.classList.add("show");
-            setTimeout(() => t.classList.remove("show"), 1500);
+            setTimeout(() => t.classList.remove("show"), 1800);
         }
 
-        function addToTray(encodedName) {
-            let name = decodeURIComponent(encodedName);
-            let prod = products.find(p => p.name === name);
-            if (!prod) return;
-
-            let item = tray.find(i => i.name === name);
+        // 4. إدارة السلة
+        function addToTray(prod) {
+            let item = tray.find(i => i.name === prod.name);
             if (item) {
                 item.qty++;
             } else {
-                tray.push({ name: prod.name, price: prod.price || 0, cost: prod.cost || 0, qty: 1 });
+                tray.push({ name: prod.name, price: Number(prod.price) || 0, cost: Number(prod.cost) || 0, qty: 1 });
             }
 
-            // حفظ السلة
             localStorage.setItem("my_tray", JSON.stringify(tray));
-
             showToast();
             renderTray();
         }
@@ -606,11 +803,9 @@
             tray[index].qty += delta;
             if (tray[index].qty <= 0) tray.splice(index, 1);
             
-            // حفظ السلة بعد التعديل
             localStorage.setItem("my_tray", JSON.stringify(tray));
-
             renderTray();
-            if (tray.length === 0) toggleDrawer(false);
+            if (tray.length === 0 && window.innerWidth < 1024) toggleDrawer(false);
         }
 
         function renderTray() {
@@ -621,6 +816,10 @@
 
             if (tray.length === 0) {
                 bar.style.display = "none";
+                drawerList.innerHTML = `<div style="text-align:center; padding: 20px; color: #94a3b8; font-size: 13.5px;">السلة فارغة حالياً</div>`;
+                document.getElementById("barBadge").innerText = 0;
+                document.getElementById("barTotal").innerText = "$0.00";
+                document.getElementById("drawerTotal").innerText = "$0.00";
                 return;
             }
 
@@ -630,18 +829,24 @@
             tray.forEach((item, index) => {
                 total += item.price * item.qty;
                 count += item.qty;
-                drawerList.innerHTML += `
-                    <div class="drawer-item">
-                        <div>
-                            <div style="font-weight:700; font-size:13.5px;">${item.name}</div>
-                            <div style="font-size:12px; color:#64748b;">$${(item.price * item.qty).toFixed(2)}</div>
-                        </div>
-                        <div class="qty-picker">
-                            <button onclick="updateQty(${index}, -1)">-</button>
-                            <span style="font-size:13px; font-weight:bold;">${item.qty}</span>
-                            <button onclick="updateQty(${index}, 1)">+</button>
-                        </div>
-                    </div>`;
+
+                const drawerItem = document.createElement('div');
+                drawerItem.className = 'drawer-item';
+                drawerItem.innerHTML = `
+                    <div>
+                        <div style="font-weight:700; font-size:14px;">${item.name}</div>
+                        <div style="font-size:12px; color:#64748b;">$${(item.price * item.qty).toFixed(2)}</div>
+                    </div>
+                    <div class="qty-picker">
+                        <button class="minus-btn">-</button>
+                        <span style="font-size:14px; font-weight:bold;">${item.qty}</span>
+                        <button class="plus-btn">+</button>
+                    </div>
+                `;
+
+                drawerItem.querySelector('.minus-btn').addEventListener('click', () => updateQty(index, -1));
+                drawerItem.querySelector('.plus-btn').addEventListener('click', () => updateQty(index, 1));
+                drawerList.appendChild(drawerItem);
             });
 
             document.getElementById("barBadge").innerText = count;
@@ -650,16 +855,30 @@
         }
 
         function toggleDrawer(open) {
+            if (window.innerWidth >= 1024) return; // تعطيل السحب المباشر في الكمبيوتر
             const overlay = document.getElementById("drawerOverlay");
             if (open && tray.length > 0) overlay.classList.add("active");
             else overlay.classList.remove("active");
         }
 
+        function handleOverlayClick(event) {
+            if (window.innerWidth >= 1024) return;
+            if (event.target.id === 'drawerOverlay') toggleDrawer(false);
+        }
+
+        // 5. إرسال الطلب إلى Firebase
         function sendOrder() {
+            const btn = document.getElementById("sendOrderBtn");
             let table = document.getElementById("custTable").value.trim() || "سفري / غير محدد";
             let note = document.getElementById("custNote").value.trim();
 
-            if (tray.length === 0) return;
+            if (tray.length === 0) {
+                alert("يرجى إضافة منتجات إلى السلة أولاً!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...`;
 
             const { ref, push } = window.dbRefs;
             let timeStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
@@ -677,13 +896,10 @@
             push(ref(window.db, 'requests'), newRequest)
                 .then(() => {
                     sentOrders.unshift(newRequest);
-                    
-                    // 2. حفظ الفواتير المرسلة في localStorage
                     localStorage.setItem("my_sent_orders", JSON.stringify(sentOrders));
-                    
                     renderSentOrders();
 
-                    // تفريغ السلة والملاحظات وحذفهم من الـ Local Storage
+                    // إعادة ضبط السلة والمدخلات
                     tray = [];
                     localStorage.removeItem("my_tray");
                     document.getElementById("custNote").value = "";
@@ -692,35 +908,46 @@
                     renderTray();
                     toggleDrawer(false);
                 })
-                .catch((err) => alert("خطأ في الإرسال: " + err.message));
+                .catch((err) => alert("خطأ في الإرسال: " + err.message))
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> تأكيد وإرسال الطلب`;
+                });
         }
 
+        // 6. عرض سجل الطلبات
         function renderSentOrders() {
-            const container = document.getElementById("myOrdersContainer");
-            const list = document.getElementById("sentOrdersList");
+            const containerMobile = document.getElementById("myOrdersContainerMobile");
+            const containerDesktop = document.getElementById("myOrdersContainerDesktop");
+            const listMobile = document.getElementById("sentOrdersListMobile");
+            const listDesktop = document.getElementById("sentOrdersListDesktop");
 
             if (sentOrders.length === 0) {
-                container.style.display = "none";
+                containerMobile.style.display = "none";
+                containerDesktop.style.display = "none";
                 return;
             }
 
-            container.style.display = "block";
-            list.innerHTML = "";
-
+            containerMobile.style.display = "block";
+            containerDesktop.style.display = "block";
+            
+            let htmlContent = "";
             sentOrders.forEach(ord => {
                 let itemsSummary = ord.items.map(i => `${i.name} (x${i.qty})`).join(' ، ');
-                list.innerHTML += `
+                htmlContent += `
                     <div class="sent-card">
                         <div style="display:flex; justify-content:space-between; font-weight:700;">
                             <span>طلب #${ord.id} - ${ord.table}</span>
-                            <span style="color:var(--primary-amber); margin-right:auto;">$${ord.total.toFixed(2)}</span>
+                            <span style="color:var(--primary-amber);">$${ord.total.toFixed(2)}</span>
                         </div>
-                        <div style="color:#64748b; margin-top:2px;">${itemsSummary}</div>
+                        <div style="color:#64748b; margin-top:4px;">${itemsSummary}</div>
                     </div>`;
             });
+
+            listMobile.innerHTML = htmlContent;
+            listDesktop.innerHTML = htmlContent;
         }
 
-        // إمكانية مسح سجل الطلبات عند الرغبة
         function clearSentOrdersHistory() {
             if (confirm("هل تريد مسح سجل طلباتك من هذا الجهاز؟")) {
                 sentOrders = [];
@@ -729,9 +956,10 @@
             }
         }
 
+        // التشغيل عند تحميل الصفحة
         window.onload = () => {
             initMenuFirebase();
-            loadFromLocalStorage(); // استرجاع الفواتير والسلة المخزنة فور فتح الصفحة
+            loadFromLocalStorage();
         };
     </script>
 </body>
