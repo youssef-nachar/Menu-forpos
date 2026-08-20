@@ -68,7 +68,7 @@
             min-height: 100vh;
         }
 
-        /* Layout Container for Desktop/Mobile */
+        /* Layout Container */
         .app-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -79,11 +79,6 @@
 
         .main-content {
             width: 100%;
-        }
-
-        /* Desktop Sidebar Panel */
-        .desktop-sidebar {
-            display: none;
         }
 
         /* Header UI */
@@ -127,6 +122,39 @@
             font-weight: 500;
         }
 
+        /* Order Type Selector Tabs */
+        .order-type-tabs {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+            gap: 4px;
+        }
+
+        .type-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-sub);
+            font-weight: 700;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .type-tab.active {
+            background: white;
+            color: var(--primary-amber);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
         /* Order Inputs Area */
         .order-inputs {
             background: var(--surface-card);
@@ -134,10 +162,16 @@
             border-radius: var(--radius-md);
             margin-bottom: 20px;
             box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        .inputs-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 12px;
-            border: 1px solid rgba(226, 232, 240, 0.6);
         }
 
         .input-field {
@@ -408,7 +442,7 @@
         .drawer-items {
             overflow-y: auto;
             margin: 16px 0;
-            max-height: 300px;
+            max-height: 250px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -537,11 +571,9 @@
             100% { background-position: -200% 0; }
         }
 
-        /* ========================================================
-           RESPONSIVE MEDIA QUERIES (شاشات الكمبيوتر والتابلت)
-        ======================================================== */
+        /* RESPONSIVE MEDIA QUERIES */
         @media (min-width: 640px) {
-            .order-inputs {
+            .inputs-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
             .grid {
@@ -562,7 +594,6 @@
             .floating-tray-bar {
                 display: none !important;
             }
-            /* إخفاء النافذة المنبثقة وتحويلها لشريط جانبي على الكمبيوتر */
             .drawer-overlay {
                 display: block !important;
                 position: static;
@@ -615,14 +646,41 @@
                 <p>اختر ما تشتهي وتابع طلبك خطوة بخطوة</p>
             </header>
 
+            <!-- Order Input Form -->
             <div class="order-inputs">
-                <div class="input-field">
-                    <i class="fa-solid fa-chair"></i>
-                    <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون" oninput="saveInputsState()">
+                <!-- Order Type Toggle Tabs -->
+                <div class="order-type-tabs">
+                    <button class="type-tab active" id="tabDineIn" onclick="switchOrderType('dine_in')">
+                        <i class="fa-solid fa-utensils"></i> داخل المحل
+                    </button>
+                    <button class="type-tab" id="tabDelivery" onclick="switchOrderType('delivery')">
+                        <i class="fa-solid fa-truck-ramps"></i> توصيل / خارج المحل
+                    </button>
                 </div>
-                <div class="input-field">
-                    <i class="fa-solid fa-note-sticky"></i>
-                    <input type="text" id="custNote" placeholder="أي ملاحظات خاصة بالطلب؟" oninput="saveInputsState()">
+
+                <div class="inputs-grid">
+                    <!-- Dine-In Field -->
+                    <div class="input-field" id="fieldTable">
+                        <i class="fa-solid fa-chair"></i>
+                        <input type="text" id="custTable" placeholder="رقم الطاولة أو اسم الزبون" oninput="saveInputsState()">
+                    </div>
+
+                    <!-- Delivery Fields -->
+                    <div class="input-field" id="fieldPhone" style="display: none;">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" id="custPhone" placeholder="رقم الهاتف للتواصل *" oninput="saveInputsState()">
+                    </div>
+
+                    <div class="input-field" id="fieldAddress" style="display: none; grid-column: 1 / -1;">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <input type="text" id="custAddress" placeholder="العنوان التفصيلي (المنطقة، الشارع، البناية) *" oninput="saveInputsState()">
+                    </div>
+
+                    <!-- Common Field -->
+                    <div class="input-field" id="fieldNote" style="grid-column: 1 / -1;">
+                        <i class="fa-solid fa-note-sticky"></i>
+                        <input type="text" id="custNote" placeholder="أي ملاحظات خاصة بالطلب؟" oninput="saveInputsState()">
+                    </div>
                 </div>
             </div>
 
@@ -632,7 +690,7 @@
                 </div>
             </div>
 
-            <!-- شريط البحث -->
+            <!-- Search Bar -->
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="searchInput" placeholder="بحث عن صنف..." oninput="filterMenu()">
@@ -704,8 +762,37 @@
         let products = [];
         let tray = [];
         let sentOrders = [];
+        let currentOrderType = 'dine_in'; // 'dine_in' OR 'delivery'
 
-        // 1. تحميل البيانات المخزنة محلياً
+        // 1. التبديل بين داخل المحل والتوصيل
+        function switchOrderType(type) {
+            currentOrderType = type;
+            const tabDineIn = document.getElementById("tabDineIn");
+            const tabDelivery = document.getElementById("tabDelivery");
+            
+            const fieldTable = document.getElementById("fieldTable");
+            const fieldPhone = document.getElementById("fieldPhone");
+            const fieldAddress = document.getElementById("fieldAddress");
+
+            if (type === 'dine_in') {
+                tabDineIn.classList.add("active");
+                tabDelivery.classList.remove("active");
+
+                fieldTable.style.display = "flex";
+                fieldPhone.style.display = "none";
+                fieldAddress.style.display = "none";
+            } else {
+                tabDelivery.classList.add("active");
+                tabDineIn.classList.remove("active");
+
+                fieldTable.style.display = "none";
+                fieldPhone.style.display = "flex";
+                fieldAddress.style.display = "flex";
+            }
+            saveInputsState();
+        }
+
+        // 2. تحميل البيانات المخزنة محلياً
         function loadFromLocalStorage() {
             try {
                 const storedOrders = localStorage.getItem("my_sent_orders");
@@ -720,9 +807,17 @@
                     renderTray();
                 }
 
+                const storedType = localStorage.getItem("order_type");
+                if (storedType) switchOrderType(storedType);
+
                 const storedTable = localStorage.getItem("cust_table");
+                const storedPhone = localStorage.getItem("cust_phone");
+                const storedAddress = localStorage.getItem("cust_address");
                 const storedNote = localStorage.getItem("cust_note");
+
                 if (storedTable) document.getElementById("custTable").value = storedTable;
+                if (storedPhone) document.getElementById("custPhone").value = storedPhone;
+                if (storedAddress) document.getElementById("custAddress").value = storedAddress;
                 if (storedNote) document.getElementById("custNote").value = storedNote;
             } catch (e) {
                 console.error("Local Storage Error:", e);
@@ -730,11 +825,14 @@
         }
 
         function saveInputsState() {
+            localStorage.setItem("order_type", currentOrderType);
             localStorage.setItem("cust_table", document.getElementById("custTable").value);
+            localStorage.setItem("cust_phone", document.getElementById("custPhone").value);
+            localStorage.setItem("cust_address", document.getElementById("custAddress").value);
             localStorage.setItem("cust_note", document.getElementById("custNote").value);
         }
 
-        // 2. الاتصال بقاعدة البيانات Firebase
+        // 3. الاتصال بـ Firebase
         function initMenuFirebase() {
             if (!window.db) { setTimeout(initMenuFirebase, 100); return; }
             const { ref, onValue } = window.dbRefs;
@@ -746,7 +844,7 @@
             });
         }
 
-        // 3. عرض المنتجات في الشبكة
+        // 4. عرض القائمة
         function renderMenu(items) {
             const grid = document.getElementById("menuGrid");
             grid.innerHTML = "";
@@ -772,7 +870,6 @@
             });
         }
 
-        // تصفية المنتجات بالبحث
         function filterMenu() {
             const query = document.getElementById("searchInput").value.toLowerCase();
             const filtered = products.filter(p => p.name.toLowerCase().includes(query));
@@ -785,7 +882,7 @@
             setTimeout(() => t.classList.remove("show"), 1800);
         }
 
-        // 4. إدارة السلة
+        // 5. السلة
         function addToTray(prod) {
             let item = tray.find(i => i.name === prod.name);
             if (item) {
@@ -855,7 +952,7 @@
         }
 
         function toggleDrawer(open) {
-            if (window.innerWidth >= 1024) return; // تعطيل السحب المباشر في الكمبيوتر
+            if (window.innerWidth >= 1024) return;
             const overlay = document.getElementById("drawerOverlay");
             if (open && tray.length > 0) overlay.classList.add("active");
             else overlay.classList.remove("active");
@@ -866,17 +963,35 @@
             if (event.target.id === 'drawerOverlay') toggleDrawer(false);
         }
 
-        // 5. إرسال الطلب إلى Firebase
+        // 6. إرسال الطلب (مع التحقق من بيانات التوصيل)
         function sendOrder() {
-            const btn = document.getElementById("sendOrderBtn");
-            let table = document.getElementById("custTable").value.trim() || "سفري / غير محدد";
-            let note = document.getElementById("custNote").value.trim();
-
             if (tray.length === 0) {
                 alert("يرجى إضافة منتجات إلى السلة أولاً!");
                 return;
             }
 
+            let table = document.getElementById("custTable").value.trim();
+            let phone = document.getElementById("custPhone").value.trim();
+            let address = document.getElementById("custAddress").value.trim();
+            let note = document.getElementById("custNote").value.trim();
+
+            // Validation for Delivery
+            if (currentOrderType === 'delivery') {
+                if (!phone) {
+                    alert("يرجى كتابة رقم الهاتف للتواصل عند اختيار التوصيل!");
+                    document.getElementById("custPhone").focus();
+                    return;
+                }
+                if (!address) {
+                    alert("يرجى كتابة العنوان التفصيلي للتوصيل!");
+                    document.getElementById("custAddress").focus();
+                    return;
+                }
+            } else {
+                if (!table) table = "سفري / غير محدد";
+            }
+
+            const btn = document.getElementById("sendOrderBtn");
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...`;
 
@@ -887,7 +1002,10 @@
             let newRequest = {
                 id: orderId,
                 time: timeStr,
-                table: table,
+                type: currentOrderType === 'dine_in' ? 'داخل المحل' : 'توصيل / خارج المحل',
+                table: currentOrderType === 'dine_in' ? table : 'توصيل',
+                phone: currentOrderType === 'delivery' ? phone : '',
+                address: currentOrderType === 'delivery' ? address : '',
                 note: note,
                 items: [...tray],
                 total: tray.reduce((sum, i) => sum + (i.price * i.qty), 0)
@@ -899,7 +1017,7 @@
                     localStorage.setItem("my_sent_orders", JSON.stringify(sentOrders));
                     renderSentOrders();
 
-                    // إعادة ضبط السلة والمدخلات
+                    // Clear Tray & Dynamic Inputs
                     tray = [];
                     localStorage.removeItem("my_tray");
                     document.getElementById("custNote").value = "";
@@ -907,6 +1025,7 @@
 
                     renderTray();
                     toggleDrawer(false);
+                    alert("تم إرسال طلبك بنجاح! 🎉");
                 })
                 .catch((err) => alert("خطأ في الإرسال: " + err.message))
                 .finally(() => {
@@ -915,7 +1034,7 @@
                 });
         }
 
-        // 6. عرض سجل الطلبات
+        // 7. سجل الطلبات
         function renderSentOrders() {
             const containerMobile = document.getElementById("myOrdersContainerMobile");
             const containerDesktop = document.getElementById("myOrdersContainerDesktop");
@@ -934,12 +1053,15 @@
             let htmlContent = "";
             sentOrders.forEach(ord => {
                 let itemsSummary = ord.items.map(i => `${i.name} (x${i.qty})`).join(' ، ');
+                let locationDetails = ord.type === 'توصيل / خارج المحل' ? `توصيل: ${ord.address}` : `طاولة: ${ord.table}`;
+                
                 htmlContent += `
                     <div class="sent-card">
                         <div style="display:flex; justify-content:space-between; font-weight:700;">
-                            <span>طلب #${ord.id} - ${ord.table}</span>
+                            <span>طلب #${ord.id} (${ord.type})</span>
                             <span style="color:var(--primary-amber);">$${ord.total.toFixed(2)}</span>
                         </div>
+                        <div style="font-size:11.5px; color:var(--primary-amber); font-weight:bold; margin-top:2px;">${locationDetails}</div>
                         <div style="color:#64748b; margin-top:4px;">${itemsSummary}</div>
                     </div>`;
             });
@@ -956,7 +1078,6 @@
             }
         }
 
-        // التشغيل عند تحميل الصفحة
         window.onload = () => {
             initMenuFirebase();
             loadFromLocalStorage();
